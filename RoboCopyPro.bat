@@ -1,13 +1,21 @@
 @echo off
 setlocal enabledelayedexpansion
-title Rushi's Robocopy Pro + Logging
+title Rushi's Robocopy Pro + Admin Check
 color 0B
 cls
 
-:: Create a timestamp for the filename (YYYY-MM-DD_HH-MM)
-set "tstamp=%date:~10,4%-%date:~4,2%-%date:~7,2%_%time:~0,2%-%time:~3,2%"
-set "tstamp=%tstamp: =0%"
-
+:: ======================================================
+:: SECTION: ADMIN CHECK
+:: ======================================================
+@echo off
+net session >nul 2>&1
+if errorlevel 1 (
+    echo [WARNING] NOT RUNNING AS ADMIN
+    echo Option [6] RESUME will fail without Admin rights.
+    echo To fix: Right-click this file and 'Run as Administrator'.
+) else (
+    echo [STATUS] Running as ADMINISTRATOR (Full Access)
+)
 echo ======================================================
 echo           ROBOCOPY PRO (LOGGING ENABLED)
 echo ======================================================
@@ -25,11 +33,15 @@ echo [2] MIRROR    (Dest becomes twin of Source - DELETES EXTRA)
 echo [3] MOVE      (Transfer to Dest and WIPE Source)
 echo [4] DRY RUN   (Test first - No files actually moved)
 echo [5] PURGE     (Cleanup: Delete files in Dest not in Source)
-echo [6] RESUME    (Best for huge files - can restart if failed)
+echo [6] RESUME    (Best for huge files - REQUIRES ADMIN)
 echo ------------------------------------------------------
 set /p choice="Enter choice (1-6): "
 
-:: Define Base Performance Flags
+:: Create a timestamp for the log filename
+set "tstamp=%date:~10,4%-%date:~4,2%-%date:~7,2%_%time:~0,2%-%time:~3,2%"
+set "tstamp=%tstamp: =0%"
+
+:: Define Base Performance Flags (64 threads)
 set "perf=/MT:64 /R:3 /W:5 /V /TS /FP"
 set "logfile=Backup_Log_%tstamp%.txt"
 
@@ -48,7 +60,7 @@ echo ======================================================
 echo.
 pause
 
-:: Run the command with Logging (/LOG)
+:: Run the command with Logging (/LOG) and Screen Output (/TEE)
 robocopy "%source%" "%dest%" %op% /LOG:"%logfile%" /TEE
 
 echo.
