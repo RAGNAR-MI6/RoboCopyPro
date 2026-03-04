@@ -1,6 +1,6 @@
 @echo off
 setlocal enabledelayedexpansion
-title Rushi's Robocopy Pro
+title Rushi's Robocopy Pro + log
 color 0B
 cls
 
